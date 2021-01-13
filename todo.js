@@ -12,6 +12,7 @@ let dotoEx2 = new NewItem("learn React", 0, 2);
 let dotoEx3 = new NewItem("make dinner", 0, 3);
 let todoArr = [dotoEx1, dotoEx2, dotoEx3];
 let todoHtml = "";
+let currentPage = 1; // 1: all, 2: complete, 3: incomplete
 
 function NewItem(content, status, id) {
   this.content = content;
@@ -26,6 +27,18 @@ function setStorage() {
   }
 }
 
+function addBtnMouseDownEffect() {
+  $("#addBtn").removeClass("add_btn");
+  $("#addBtn").addClass("add_btn_clicked");
+}
+
+function addBtnMouseUpEffect() {
+  $("#addBtn").removeClass("add_btn_clicked");
+  $("#addBtn").addClass("add_btn");
+
+  // $("#addBtn").trigger("click");
+}
+
 function addTodo() {
   if (inputArea.value !== "") {
     todoArr = JSON.parse(localStorage.getItem("todoArray")); // 從local storage拿到todo list，賦予給todoArr
@@ -35,7 +48,7 @@ function addTodo() {
     localStorage.setItem("todoArray", JSON.stringify(todoArr)); // 把todoArr放到localStorage
     $("input").val(""); // clear input
 
-    $("#all_item").trigger("click")
+    $("#all_item").trigger("click");
   }
 }
 
@@ -73,6 +86,8 @@ function displayTodos() {
   $(".checkbox").click(handleCheck);
   $(".checkbox_checked").click(handleCheck);
   $(".delete").click(deleteItem);
+
+  currentPage = 1;
 }
 
 function handleCheck() {
@@ -96,6 +111,7 @@ function handleCheck() {
 function deleteItem() {
   let todoArray = JSON.parse(localStorage.getItem("todoArray"));
   let thisId = $(this).parent().attr("id"); // 得到選取item的id
+  let thisStatus = $(this).parent().attr("id");
   $(this).children().css("color", "#d3d3d3");
   $(this).removeClass("delete").addClass("delete_clicked");
 
@@ -104,7 +120,14 @@ function deleteItem() {
     todoArray = todoArray.filter((item) => item.id != thisId); // 找array裡id符合的
     console.log(todoArray);
     localStorage.setItem("todoArray", JSON.stringify(todoArray));
-    displayTodos();
+
+    if (currentPage === 1) {
+      displayTodos();
+    } else if (currentPage === 2) {
+      displayCompleted();
+    } else {
+      displayIncomplete();
+    }
   }, 200);
 }
 
@@ -133,6 +156,8 @@ function displayCompleted() {
   $(".checkbox").click(handleCheck);
   $(".checkbox_checked").click(handleCheck);
   $(".delete").click(deleteItem);
+
+  currentPage = 2;
 }
 
 function displayIncomplete() {
@@ -160,21 +185,22 @@ function displayIncomplete() {
   $(".checkbox").click(handleCheck);
   $(".checkbox_checked").click(handleCheck);
   $(".delete").click(deleteItem);
+
+  currentPage = 3;
 }
 
 function changeSortBtnStyle() {
-  $(this).addClass("current_sort")
-  $(this).siblings().removeClass("current_sort")
+  $(this).addClass("current_sort");
+  $(this).siblings().removeClass("current_sort");
 }
-
-
-
 
 setStorage();
 displayTodos();
 
 addBtn.addEventListener("click", addTodo);
+addBtn.addEventListener("mousedown", addBtnMouseDownEffect);
 allBtn.addEventListener("click", displayTodos);
 completeBtn.addEventListener("click", displayCompleted);
 incompleteBtn.addEventListener("click", displayIncomplete);
+document.querySelector("body").addEventListener("mouseup", addBtnMouseUpEffect);
 $(".sort_btn").click(changeSortBtnStyle);
