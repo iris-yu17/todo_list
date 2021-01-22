@@ -128,7 +128,7 @@ function deleteItem() {
     } else {
       displayIncomplete();
     }
-  }, 200);
+  }, 100);
 }
 
 function displayCompleted() {
